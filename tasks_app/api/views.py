@@ -1,5 +1,5 @@
 from tasks_app.models import Tasks
-from rest_framework import viewsets, generics
+from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from .serilaizers import TasksSerializer
 
