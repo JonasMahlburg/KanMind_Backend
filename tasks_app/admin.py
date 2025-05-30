@@ -11,7 +11,7 @@ class TasksAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Advanced options",
+            "Co-workers",
             {
                 "classes": ["collapse"],
                 "fields": ["worked"],
