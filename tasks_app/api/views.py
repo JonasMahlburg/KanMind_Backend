@@ -8,9 +8,9 @@ class TasksViewSet(viewsets.ModelViewSet):
     serializer_class = TasksSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-class TasksDetailViewSet(viewsets.ModelViewSet):
-    queryset = Tasks.objects.all()
-    serializer_class = TasksSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+# class TasksDetailViewSet(viewsets.ModelViewSet):
+#     queryset = Tasks.objects.all()
+#     serializer_class = TasksSerializer
+#     permission_classes = [IsAuthenticatedOrReadOnly]
 
 
