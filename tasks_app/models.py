@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Tasks(models.Model):
     title = models.CharField(max_length=100)
@@ -8,6 +9,8 @@ class Tasks(models.Model):
     deadline = models.DateField(blank=True)
     prio = models.CharField(max_length=10, help_text="please use: 'critical', 'high', 'medium' or 'low'")
     worked = models.CharField(max_length=100)
+    board = models.ForeignKey('boards_app.Boards', on_delete=models.CASCADE, related_name='tasks'
+    )
     
     class Meta:
         verbose_name = 'Task'

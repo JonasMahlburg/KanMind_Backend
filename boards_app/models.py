@@ -1,10 +1,12 @@
 from django.db import models
 from django.conf import settings
+from tasks_app.models import Tasks
+from user_auth_app.models import User
 
 class Boards(models.Model):
     title = models.CharField(max_length=255)
-    member_count = models.PositiveIntegerField(default=0)
-    ticket_count = models.PositiveIntegerField(default=0)
+    member_count = models.ManyToManyField(User, related_name='boards_member_count')
+    tasks_to_do_count = models.ManyToManyField(Tasks, related_name='boards_with_this_task')
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -23,10 +25,3 @@ class Boards(models.Model):
     def __str__(self):
         return self.title
 
-    @property
-    def tasks_to_do_count(self):
-        return self.tasks.filter(status='to_do').count()
-
-    @property
-    def tasks_high_prio_count(self):
-        return self.tasks.filter(status='to_do', priority='high').count()
