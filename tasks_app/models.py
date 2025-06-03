@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+
 
 
 # Create your models here.
@@ -15,7 +18,12 @@ class Tasks(models.Model):
     date = models.DateTimeField(auto_now=True)
     deadline = models.DateField(blank=True)
     prio = models.CharField(max_length=10, help_text="please use: 'critical', 'high', 'medium' or 'low'")
-    worked = models.CharField(max_length=100)
+    worked = models.ManyToManyField(
+        get_user_model(),
+        blank=True,
+        related_name='worked_tasks',
+        help_text="User, die an diesem Task gearbeitet haben"
+    )
     board = models.ForeignKey('boards_app.Boards', on_delete=models.CASCADE, related_name='tasks'
     )
     status = models.CharField(
@@ -23,6 +31,14 @@ class Tasks(models.Model):
         choices=STATUS_CHOICES,
         default='to-do'
     )
+    assigned_to = models.ForeignKey(
+    get_user_model(),
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name='assignee',
+    help_text="User, dem dieser Task zugewiesen ist"
+)
     
     class Meta:
         verbose_name = 'Task'
@@ -30,3 +46,18 @@ class Tasks(models.Model):
 
     def __str__(self):
              return f"{self.title}, {self.content}, ({self.deadline})"
+    
+class Comment(models.Model):
+    task = models.ForeignKey(Tasks, on_delete=models.CASCADE, related_name="comments")
+    text = models.TextField(max_length=300)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = ("Comment")
+        verbose_name_plural = ("Comments")
+
+    def __str__(self):
+        return f"The Comments {self.title} is written by {self.author}"
+    
+    

@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from user_auth_app.models import UserProfile
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+
 
 """
 Serializer for the UserProfile model.
@@ -46,3 +51,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.set_password(pw)
         account.save()
         return account
+
+
+class EmailCheckView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'This email is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({'message': 'Email is available'}, status=status.HTTP_200_OK)
