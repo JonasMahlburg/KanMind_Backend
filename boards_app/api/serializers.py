@@ -5,7 +5,7 @@ from tasks_app.models import Tasks
 class BoardsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boards
-        fields = ['title', 'boards_member_count', 'tasks_count', 'tasks_to_do_count']
+        fields = ['id','title', 'member_count', 'tasks_count', 'tasks_to_do_count']
     
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user

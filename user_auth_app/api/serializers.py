@@ -17,7 +17,7 @@ Serializer for user registration.
 Validates that passwords match and that the email is unique before creating a new User instance.
 """
 class RegistrationSerializer(serializers.ModelSerializer):
-
+    email = serializers.EmailField(required=True)
     repeated_password = serializers.CharField(write_only=True)
 
     class Meta:
