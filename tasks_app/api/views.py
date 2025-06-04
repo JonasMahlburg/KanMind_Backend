@@ -42,4 +42,4 @@ class TasksInReviewViewset(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Tasks.objects.filter(status=self.request.reviewing)
+        return Tasks.objects.filter(status="review")

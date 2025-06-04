@@ -11,13 +11,13 @@ tasks_router = NestedDefaultRouter(router, r'tasks', lookup='task')
 tasks_router.register(r'comments', CommentViewSet, basename='task-comments')
 
 review_router = NestedDefaultRouter(router, r'tasks', lookup='task')
-review_router.register(r'reviewing', TasksViewSet, basename='task-reviewing')
+
 
 
 
 urlpatterns = [
    path('', include( router.urls)),
    path('', include(tasks_router.urls)),
-   path('', include(review_router.urls)),
-   path('assigned-to-me/', MyAssignedTasksViewSet.as_view({'get': 'list'})),  
+   path('tasks/reviewing/', TasksInReviewViewset.as_view({'get': 'list'})),
+   path('tasks/assigned-to-me/', MyAssignedTasksViewSet.as_view({'get': 'list'})),
 ]

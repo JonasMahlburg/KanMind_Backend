@@ -18,12 +18,13 @@ class Tasks(models.Model):
     date = models.DateTimeField(auto_now=True)
     deadline = models.DateField(blank=True)
     prio = models.CharField(max_length=10, help_text="please use: 'critical', 'high', 'medium' or 'low'")
-    worked = models.ManyToManyField(
-        get_user_model(),
-        blank=True,
-        related_name='worked_tasks',
-        help_text="User, die an diesem Task gearbeitet haben"
-    )
+    # worked = models.ManyToManyField(
+    #     get_user_model(),
+    #     blank=True,
+    #     related_name='worked_tasks',
+    #     help_text="User, die an diesem Task gearbeitet haben"
+    # )
+    worked = models.ManyToManyField(User, related_name='assignee')
     board = models.ForeignKey('boards_app.Boards', on_delete=models.CASCADE, related_name='tasks'
     )
     status = models.CharField(
@@ -31,14 +32,14 @@ class Tasks(models.Model):
         choices=STATUS_CHOICES,
         default='to-do'
     )
-    assigned_to = models.ForeignKey(
-    get_user_model(),
-    on_delete=models.SET_NULL,
-    null=True,
-    blank=True,
-    related_name='assignee',
-    help_text="User, dem dieser Task zugewiesen ist"
-)
+#     assigned_to = models.ForeignKey(
+#     get_user_model(),
+#     on_delete=models.SET_NULL,
+#     null=True,
+#     blank=True,
+#     related_name='assignee',
+#     help_text="User, dem dieser Task zugewiesen ist"
+# )
     
     class Meta:
         verbose_name = 'Task'
