@@ -32,3 +32,6 @@ class BoardsSerializer(serializers.ModelSerializer):
     def get_tasks_high_prio_count(self, obj):
         return obj.tasks_to_do.filter(prio='high')
     
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+    

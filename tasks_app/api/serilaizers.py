@@ -8,11 +8,11 @@ class TasksSerializer(serializers.ModelSerializer):
         many=True,
         queryset=get_user_model().objects.all()
     )
-    
+    deadline = serializers.DateField(required=False, allow_null=True)
 
     class Meta:
         model = Tasks
-        fields = ['id', 'title', 'content', 'board', 'owner', 'worked']
+        fields = ['id', 'title', 'content', 'board', 'owner', 'worked', 'deadline']
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
