@@ -5,7 +5,6 @@ from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 
 router = DefaultRouter()
 router.register(r'tasks', TasksViewSet, basename='task')
-router.register(r'reviewing', TasksInReviewViewset, basename='reviewing')
 
 tasks_router = NestedDefaultRouter(router, r'tasks', lookup='task')
 tasks_router.register(r'comments', CommentViewSet, basename='task-comments')
