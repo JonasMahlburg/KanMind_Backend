@@ -1,22 +1,34 @@
 from rest_framework import serializers
 from boards_app.models import Boards
-from tasks_app.models import Tasks
 
 class BoardsSerializer(serializers.ModelSerializer):
+    member_count = serializers.SerializerMethodField()
+    ticket_count = serializers.SerializerMethodField()
+    tasks_to_do_count = serializers.SerializerMethodField()
+    tasks_high_prio_count = serializers.SerializerMethodField()
+    owner_id = serializers.IntegerField(source='owner.id')
+
     class Meta:
         model = Boards
-        fields = ['id','title', 'member_count', 'tasks_count', 'tasks_to_do_count']
-    
-    def create(self, validated_data):
-        validated_data['owner'] = self.context['request'].user
-        return super().create(validated_data)
-    
-    member_count = serializers.SerializerMethodField()
-    tasks_count = serializers.SerializerMethodField()
+        fields = [
+            'id',
+            'title',
+            'member_count',
+            'ticket_count',
+            'tasks_to_do_count',
+            'tasks_high_prio_count',
+            'owner_id'
+        ]
 
     def get_member_count(self, obj):
-        return obj.members.count()  # 'members' ist das ManyToManyField
+        return obj.members.count()
 
-    def get_tasks_count(self, obj):
-        return obj.tasks.count()  # 'tasks' ist der related_name vom Task-Model
+    def get_ticket_count(self, obj):
+        return obj.tasks_to_do.all().count()  # oder obj.tasks.count(), je nach Logik
+
+    def get_tasks_to_do_count(self, obj):
+        return obj.tasks_to_do.filter(status='to-do').count()
+
+    def get_tasks_high_prio_count(self, obj):
+        return obj.tasks_to_do.filter(prio='high')
     
