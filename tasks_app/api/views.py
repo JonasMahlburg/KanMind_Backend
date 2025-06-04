@@ -38,7 +38,7 @@ class MyAssignedTasksViewSet(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Tasks.objects.filter(assigned_to=self.request.user)
+        return Tasks.objects.filter(worked=self.request.user)
 
 class TasksInReviewViewset(mixins.ListModelMixin, GenericViewSet):
     serializer_class = TasksSerializer
