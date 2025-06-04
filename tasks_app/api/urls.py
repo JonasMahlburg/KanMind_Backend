@@ -15,8 +15,8 @@ review_router = NestedDefaultRouter(router, r'tasks', lookup='task')
 
 
 urlpatterns = [
-   path('', include( router.urls)),
-   path('', include(tasks_router.urls)),
    path('tasks/reviewing/', TasksInReviewViewset.as_view({'get': 'list'})),
    path('tasks/assigned-to-me/', MyAssignedTasksViewSet.as_view({'get': 'list'})),
+   path('', include(router.urls)),
+   path('', include(tasks_router.urls)),
 ]

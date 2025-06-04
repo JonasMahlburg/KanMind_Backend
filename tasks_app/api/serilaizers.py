@@ -12,7 +12,7 @@ class TasksSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tasks
-        fields = '__all__'
+        fields = ['id', 'title', 'content', 'board', 'owner', 'worked']
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:

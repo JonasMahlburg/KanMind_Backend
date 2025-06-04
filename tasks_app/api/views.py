@@ -43,3 +43,10 @@ class TasksInReviewViewset(mixins.ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         return Tasks.objects.filter(status="review")
+    
+class TasksHighPrioViewset(mixins.ListModelMixin, GenericViewSet):
+    serializer_class = TasksSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Tasks.objects.filter(prio="high")
