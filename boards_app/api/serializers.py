@@ -1,5 +1,32 @@
 from rest_framework import serializers
 from boards_app.models import Boards
+from django.contrib.auth.models import User
+from tasks_app.models import Tasks  # Passe den Importpfad an dein Projekt an
+
+class UserMinimalSerializer(serializers.ModelSerializer):
+    fullname = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname']
+
+    def get_fullname(self, obj):
+        return obj.username
+
+class TaskSerializer(serializers.ModelSerializer):
+    assignee = UserMinimalSerializer()
+    reviewer = UserMinimalSerializer()
+    comments_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Tasks
+        fields = [
+            'id', 'title', 'description', 'status', 'priority',
+            'assignee', 'reviewer', 'due_date', 'comments_count'
+        ]
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
 
 class BoardsSerializer(serializers.ModelSerializer):
     """
@@ -27,22 +54,29 @@ class BoardsSerializer(serializers.ModelSerializer):
     """
     member_count = serializers.SerializerMethodField()
     ticket_count = serializers.SerializerMethodField()
-    tasks_to_do_count = serializers.SerializerMethodField()
     tasks_high_prio_count = serializers.SerializerMethodField()
-    owner_id = serializers.IntegerField(source='owner.id')
+    members = UserMinimalSerializer(many=True, read_only=True)
+    member_ids = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        many=True,
+        write_only=True,
+        source='members'
+    )
+    tasks = serializers.SerializerMethodField()
 
     class Meta:
         model = Boards
         fields = [
-            'id',
-            'title',
-            'member_count',
-            'ticket_count',
-            'tasks_to_do_count',
-            'tasks_high_prio_count',
-            'owner_id'
-        ]
-
+        'id',
+        'title',
+        'owner_id',
+        'members',
+        'member_ids',
+        'tasks',
+        'member_count',
+        'ticket_count',
+        'tasks_high_prio_count'
+    ]
     def get_member_count(self, obj):
         """
         Return the number of members associated with the board.
@@ -65,19 +99,11 @@ class BoardsSerializer(serializers.ModelSerializer):
         Returns:
             int: Number of related tasks.
         """
-        return obj.tasks_to_do.all().count()  # oder obj.tasks.count(), je nach Logik
+        return obj.tasks.count()
 
-    def get_tasks_to_do_count(self, obj):
-        """
-        Return the number of tasks with status 'to-do'.
-
-        Args:
-            obj (Boards): The board instance.
-
-        Returns:
-            int: Count of tasks with 'to-do' status.
-        """
-        return obj.tasks_to_do.filter(status='to-do').count()
+    def get_tasks(self, obj):
+        tasks = obj.tasks.filter(status='to-do')
+        return TaskSerializer(tasks, many=True).data
 
     def get_tasks_high_prio_count(self, obj):
         """
@@ -89,14 +115,4 @@ class BoardsSerializer(serializers.ModelSerializer):
         Returns:
             int: Count of tasks with priority set to 'high'.
         """
-        return obj.tasks_to_do.filter(prio='high')
-    
-    def perform_create(self, serializer):
-        """
-        Set the owner of the board to the current user during creation.
-
-        Args:
-            serializer (BoardsSerializer): The serializer instance being saved.
-        """
-        serializer.save(owner=self.request.user)
-    
+        return obj.tasks.filter(prio='high').count()

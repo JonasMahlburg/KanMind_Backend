@@ -64,11 +64,17 @@ class EmailCheckView(APIView):
         email = request.data.get('email')
         if not email:
             return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if User.objects.filter(email=email).exists():
-            return Response({'error': 'This email is already taken'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({'message': 'Email is available'}, status=status.HTTP_200_OK)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'error': 'No user with this email found'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            'id': user.id,
+            'email': user.email,
+            'fullname': user.username
+        }, status=status.HTTP_200_OK)
     
 
 

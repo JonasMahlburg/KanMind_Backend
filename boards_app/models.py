@@ -24,11 +24,6 @@ class Boards(models.Model):
         __str__(): Returns the board title as its string representation.
     """
     title = models.CharField(max_length=255)
-    tasks_to_do = models.ManyToManyField(
-        Tasks,
-        related_name='boards_with_this_task',
-        limit_choices_to={'status': 'to-do'}
-    )
   
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
