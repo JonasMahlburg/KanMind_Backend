@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
+User = get_user_model()
 from rest_framework import serializers
 from tasks_app.models import Tasks, Comment
+from boards_app.api.serializers import UserMinimalSerializer
 
 
 class TasksSerializer(serializers.ModelSerializer):
@@ -19,15 +21,41 @@ class TasksSerializer(serializers.ModelSerializer):
         worked (list[int]): List of user IDs assigned to the task.
         deadline (date): Optional deadline for completing the task.
     """
-    worked = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=get_user_model().objects.all()
+    assignee = UserMinimalSerializer()
+    reviewer = UserMinimalSerializer()
+    assignee_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        write_only=True,
+        source='assignee',
+        required=True
     )
-    deadline = serializers.DateField(required=False, allow_null=True)
+    reviewer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        write_only=True,
+        source='reviewer',
+        required=True
+    )
+    comments_count = serializers.SerializerMethodField()
+    priority = serializers.CharField()
+    status = serializers.CharField()
+    due_date = serializers.DateField()
 
     class Meta:
         model = Tasks
-        fields = ['id', 'title', 'content', 'board', 'owner', 'worked', 'deadline']
+        fields = [
+            'id', 'board', 'title', 'description', 'status', 'priority',
+            'assignee', 'reviewer', 'due_date', 'comments_count',
+            'assignee_id', 'reviewer_id',
+        ]
+        extra_kwargs = {
+            'description': {'required': True},
+            'status': {'required': True},
+            'priority': {'required': True},
+            'due_date': {'required': True},
+        }
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
 
 class CommentSerializer(serializers.ModelSerializer):
     """

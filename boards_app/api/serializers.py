@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from boards_app.models import Boards
 from django.contrib.auth.models import User
-from tasks_app.models import Tasks  # Passe den Importpfad an dein Projekt an
+from tasks_app.models import Tasks
+
 
 class UserMinimalSerializer(serializers.ModelSerializer):
     fullname = serializers.SerializerMethodField()
@@ -13,20 +14,6 @@ class UserMinimalSerializer(serializers.ModelSerializer):
     def get_fullname(self, obj):
         return obj.username
 
-class TaskSerializer(serializers.ModelSerializer):
-    assignee = UserMinimalSerializer()
-    reviewer = UserMinimalSerializer()
-    comments_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Tasks
-        fields = [
-            'id', 'title', 'description', 'status', 'priority',
-            'assignee', 'reviewer', 'due_date', 'comments_count'
-        ]
-
-    def get_comments_count(self, obj):
-        return obj.comments.count()
 
 class BoardsSerializer(serializers.ModelSerializer):
     """
@@ -102,8 +89,9 @@ class BoardsSerializer(serializers.ModelSerializer):
         return obj.tasks.count()
 
     def get_tasks(self, obj):
+        from tasks_app.api.serilaizers import TasksSerializer
         tasks = obj.tasks.filter(status='to-do')
-        return TaskSerializer(tasks, many=True).data
+        return TasksSerializer(tasks, many=True).data
 
     def get_tasks_high_prio_count(self, obj):
         """
@@ -115,4 +103,4 @@ class BoardsSerializer(serializers.ModelSerializer):
         Returns:
             int: Count of tasks with priority set to 'high'.
         """
-        return obj.tasks.filter(prio='high').count()
+        return obj.tasks.filter(priority='high').count()

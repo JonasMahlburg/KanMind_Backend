@@ -45,19 +45,32 @@ class Tasks(models.Model):
     ]
 
     title = models.CharField(max_length=100)
-    content = models.TextField(max_length=150)
+    description = models.TextField(max_length=150)
     date = models.DateTimeField(auto_now=True)
-    deadline = models.DateField(blank=True, null=True)
-    prio = models.CharField(max_length=10, help_text="please use: 'critical', 'high', 'medium' or 'low'")
+    due_date = models.DateField(blank=True, null=True)
+    priority = models.CharField(max_length=10, help_text="please use: 'critical', 'high', 'medium' or 'low'")
     owner = models.ForeignKey(
-            get_user_model(),
-            on_delete=models.SET_NULL,
-            null=True,
-            blank=True,
-            related_name='created_tasks',
-            help_text="Der User, der den Task erstellt hat"
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_tasks',
+        help_text="Der User, der den Task erstellt hat"
     )
-    worked = models.ManyToManyField(User, related_name='assignee')
+    assignee = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_tasks'
+    )
+    reviewer = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_tasks'
+    )
     board = models.ForeignKey('boards_app.Boards', on_delete=models.CASCADE, related_name='tasks'
     )
     status = models.CharField(
@@ -71,7 +84,7 @@ class Tasks(models.Model):
         verbose_name_plural = 'Tasks'
 
     def __str__(self):
-             return f"{self.title}, {self.content}, ({self.deadline})"
+        return f"{self.title}, {self.description}, ({self.due_date})"
     
 class Comment(models.Model):
     """

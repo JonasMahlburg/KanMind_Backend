@@ -2,19 +2,19 @@ from django.contrib import admin
 from .models import Tasks
 
 class TasksAdmin(admin.ModelAdmin):
-    list_display = ('title',  'prio', 'deadline')
+    list_display = ('id','title',  'priority', 'due_date')
     fieldsets = [
         (
             None,
             {
-                "fields": ["title", "content", "deadline", "prio"],
+                "fields": [ "id","title", "content", "due_date", "priority"],
             },
         ),
         (
             "Co-workers",
             {
                 "classes": ["collapse"],
-                "fields": ["worked"],
+                "fields": ["assignee"],
             },
         ),
     ]

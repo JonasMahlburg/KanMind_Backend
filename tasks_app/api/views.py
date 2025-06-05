@@ -66,7 +66,7 @@ class MyAssignedTasksViewSet(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Tasks.objects.filter(worked=self.request.user)
+        return Tasks.objects.filter(assignee=self.request.user)
 
 class TasksInReviewViewset(mixins.ListModelMixin, GenericViewSet):
     """
@@ -81,7 +81,7 @@ class TasksInReviewViewset(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Tasks.objects.filter(status="review")
+        return Tasks.objects.filter(status="reviewing")
     
 class TasksHighPrioViewset(mixins.ListModelMixin, GenericViewSet):
     """
@@ -96,4 +96,4 @@ class TasksHighPrioViewset(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Tasks.objects.filter(prio="high")
+        return Tasks.objects.filter(priority="high")
