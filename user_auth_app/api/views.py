@@ -66,10 +66,13 @@ class CustomLogInView(ObtainAuthToken):
     serializer_class = EmailAuthTokenSerializer  
 
     def post(self, request):
-        serializer = self.serializer_class(data={
-            'email': request.data.get('email'),
-            'password': request.data.get('password')
-        })
+        serializer = self.serializer_class(
+            data={
+                'email': request.data.get('email'),
+                'password': request.data.get('password')
+            },
+            context={'request': request}
+)
 
         data = {}
 

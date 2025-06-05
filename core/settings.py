@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-(afn$ceq9ro*d5%&@31d)q7brn5qu8+v)83vxkbg%=tzdl!h+x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '127.0.0.1:5500']
 
 
 # Application definition
@@ -153,3 +153,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

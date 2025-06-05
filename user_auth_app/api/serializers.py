@@ -25,7 +25,7 @@ Validates that passwords match and that the email is unique before creating a ne
 class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     repeated_password = serializers.CharField(write_only=True)
-    fullname = serializers.CharField(write_only=True)
+    fullname = serializers.CharField(write_only=True, allow_blank=False)
 
     class Meta:
         model = User
@@ -44,6 +44,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         repeated_pw = self.validated_data['repeated_password']
         fullname = self.validated_data['fullname']
 
+        base_username = fullname.strip().replace(" ", "_")
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}_{counter}"
+            counter += 1
+
         if pw != repeated_pw:
             raise serializers.ValidationError({'error':'passwords dont match'})
         
@@ -52,7 +59,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         
         account = User(
             email=self.validated_data['email'],
-            username=fullname
+            username=username
         )
         account.set_password(pw)
         account.save()
@@ -92,7 +99,7 @@ class EmailAuthTokenSerializer(serializers.Serializer):
             except User.DoesNotExist:
                 raise serializers.ValidationError("Invalid email or password.")
 
-            user = authenticate(username=user.username, password=password)
+            user = authenticate(self.context.get('request'), username=user.username, password=password)
             if not user:
                 raise serializers.ValidationError("Invalid email or password.")
         else:
