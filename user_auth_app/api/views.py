@@ -1,6 +1,6 @@
 from rest_framework import generics
 from user_auth_app.models import UserProfile
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, EmailAuthTokenSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
@@ -42,8 +42,10 @@ class RegistrationView(APIView):
             token, create = Token.objects.get_or_create(user=saved_account)
             data = {
                 'token': token.key,
-                'username': saved_account.username,
-                'email': saved_account.email
+                'fullname': saved_account.username,
+                'email': saved_account.email,
+                'user_id': saved_account.id
+
             }
         else:
             data=serializer.errors
@@ -56,11 +58,18 @@ API view for user login using token authentication.
 If credentials are valid, returns an authentication token and user information.
 Otherwise, returns validation errors.
 """
+
+
+
 class CustomLogInView(ObtainAuthToken):
     permission_classes = [AllowAny]
+    serializer_class = EmailAuthTokenSerializer  
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data={
+            'email': request.data.get('email'),
+            'password': request.data.get('password')
+        })
 
         data = {}
 
@@ -69,8 +78,9 @@ class CustomLogInView(ObtainAuthToken):
             token, create = Token.objects.get_or_create(user=user)
             data = {
                 'token': token.key,
-                'username': user.username,
-                'email': user.email
+                'fullname': user.username,
+                'email': user.email,
+                'user_id': user.id
             }
         else:
             data=serializer.errors

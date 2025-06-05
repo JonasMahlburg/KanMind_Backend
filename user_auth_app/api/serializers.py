@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from user_auth_app.models import UserProfile
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -24,10 +25,11 @@ Validates that passwords match and that the email is unique before creating a ne
 class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     repeated_password = serializers.CharField(write_only=True)
+    fullname = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'repeated_password']
+        fields = ['id', 'fullname', 'email', 'password', 'repeated_password']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -40,6 +42,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def save(self):
         pw = self.validated_data['password']
         repeated_pw = self.validated_data['repeated_password']
+        fullname = self.validated_data['fullname']
 
         if pw != repeated_pw:
             raise serializers.ValidationError({'error':'passwords dont match'})
@@ -47,7 +50,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=self.validated_data['email']).exists():
              raise serializers.ValidationError({'error':'this Email is already taken'})
         
-        account = User(email=self.validated_data['email'], username=self.validated_data['username'])
+        account = User(
+            email=self.validated_data['email'],
+            username=fullname
+        )
         account.set_password(pw)
         account.save()
         return account
@@ -63,3 +69,28 @@ class EmailCheckView(APIView):
             return Response({'error': 'This email is already taken'}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({'message': 'Email is available'}, status=status.HTTP_200_OK)
+    
+
+
+class EmailAuthTokenSerializer(serializers.Serializer):
+    email = serializers.EmailField(label="Email", write_only=True)
+    password = serializers.CharField(label="Password", style={'input_type': 'password'}, trim_whitespace=False)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        if email and password:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Invalid email or password.")
+
+            user = authenticate(username=user.username, password=password)
+            if not user:
+                raise serializers.ValidationError("Invalid email or password.")
+        else:
+            raise serializers.ValidationError("Must include 'email' and 'password'.")
+
+        attrs['user'] = user
+        return attrs
