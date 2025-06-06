@@ -80,25 +80,17 @@ class TasksSerializer(serializers.ModelSerializer):
 
     def get_comments_count(self, obj):
         return obj.comments.count()
-
+    
+    
 class CommentSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Comment model.
+    content = serializers.CharField(source='text')
+    author = serializers.CharField(source='author.get_full_name', read_only=True)
 
-    This serializer converts Comment instances to and from JSON,
-    allowing interaction with comments related to tasks.
-
-    Fields:
-        id (int): Unique identifier of the comment.
-        task (int): ID of the task the comment is associated with.
-        text (str): Content of the comment.
-        author (int): ID of the user who wrote the comment.
-        created_at (datetime): Timestamp of when the comment was created.
-    """
     class Meta:
         model = Comment
-        fields = ['id', 'task', 'cotend', 'author', 'created_at']
-        read_only_fields = ['id', 'created_at', 'task', 'author']
+        fields = ['id', 'created_at', 'author', 'content']
+
+        
 
 class ReviewerSerializer(serializers.Serializer):
     reviewer_id = serializers.PrimaryKeyRelatedField(
@@ -106,3 +98,26 @@ class ReviewerSerializer(serializers.Serializer):
         required=True,
         source='reviewer'
     )
+
+class TasksSerializerNoBoard(serializers.ModelSerializer):
+    description = serializers.CharField()
+    assignee = UserMinimalSerializer(read_only=True)
+    reviewer = UserMinimalSerializer(read_only=True)
+    comments_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Tasks
+        fields = [
+            'id',
+            'title',
+            'description',
+            'status',
+            'priority',
+            'assignee',
+            'reviewer',
+            'due_date',
+            'comments_count',
+        ]
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()

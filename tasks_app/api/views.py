@@ -57,21 +57,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         
   
 
-
-class MyAssignedTasksViewSet(mixins.ListModelMixin, GenericViewSet):
-    """
-    ViewSet for listing tasks assigned to the current user.
-
-    Only allows authenticated users to retrieve tasks they are working on.
-
-    Methods:
-        get_queryset(): Returns tasks where the current user is listed in the 'worked' field.
-    """
+class TasksAssignedToMeAsReviewerViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = TasksSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Tasks.objects.filter(assignee=self.request.user)
+        return Tasks.objects.filter(reviewer=self.request.user)
 
 class TasksInReviewViewset(mixins.ListModelMixin, GenericViewSet):
     """

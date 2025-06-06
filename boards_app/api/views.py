@@ -19,13 +19,20 @@ class BoardsViewSet(viewsets.ModelViewSet):
         serializer_class (Serializer): The serializer class used for board instances.
         permission_classes (list): List of permission classes that control access.
     """
-    queryset = Boards.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # queryset = Boards.objects.all()
+    # permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(owner=self.request.user)
+
+    # def get_serializer_class(self):
+    #     if self.action in ['retrieve', 'update', 'partial_update']:
+    #         return BoardsDetailSerializer
+    #     return BoardsSerializer
+
+    queryset = Boards.objects.all()
 
     def get_serializer_class(self):
-        if self.action in ['retrieve', 'update', 'partial_update']:
+        if self.action in ['update', 'partial_update']:
             return BoardsDetailSerializer
         return BoardsSerializer

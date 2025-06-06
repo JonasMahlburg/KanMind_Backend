@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import TasksViewSet, MyAssignedTasksViewSet, CommentViewSet, TasksInReviewViewset
+from .views import TasksViewSet, TasksAssignedToMeAsReviewerViewSet, CommentViewSet, TasksInReviewViewset
 from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 
 
@@ -16,7 +16,7 @@ review_router = NestedDefaultRouter(router, r'tasks', lookup='task')
 
 urlpatterns = [
    path('tasks/reviewing/', TasksInReviewViewset.as_view({'get': 'list'})),
-   path('tasks/assigned-to-me/', MyAssignedTasksViewSet.as_view({'get': 'list'})),
+   path('tasks/assigned-to-me/', TasksAssignedToMeAsReviewerViewSet.as_view({'get': 'list'})),
    
    path('', include(router.urls)),
    path('', include(tasks_router.urls)),
