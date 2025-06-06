@@ -40,30 +40,35 @@ class RegistrationSerializer(serializers.ModelSerializer):
     Custom save method to create a new User instance after validating passwords and email uniqueness.
     """
     def save(self):
-        pw = self.validated_data['password']
-        repeated_pw = self.validated_data['repeated_password']
-        fullname = self.validated_data['fullname']
+        pw = self.validated_data.pop('password')
+        repeated_pw = self.validated_data.pop('repeated_password')
+        fullname = self.validated_data.pop('fullname')
 
-        base_username = fullname.strip().replace(" ", "_")
+        if pw != repeated_pw:
+            raise serializers.ValidationError({'error': 'Passwords do not match'})
+
+        if User.objects.filter(email=self.validated_data['email']).exists():
+            raise serializers.ValidationError({'error': 'This email is already taken'})
+
+        base_username = fullname.strip().replace(" ", "").lower()
         username = base_username
         counter = 1
         while User.objects.filter(username=username).exists():
-            username = f"{base_username}_{counter}"
+            username = f"{base_username}{counter}"
             counter += 1
 
-        if pw != repeated_pw:
-            raise serializers.ValidationError({'error':'passwords dont match'})
-        
-        if User.objects.filter(email=self.validated_data['email']).exists():
-             raise serializers.ValidationError({'error':'this Email is already taken'})
-        
         account = User(
             email=self.validated_data['email'],
-            username=username
+            username=username,
+            first_name=fullname  # oder splitten, falls du Vor-/Nachname willst
         )
         account.set_password(pw)
         account.save()
         return account
+
+
+
+
 
 
 class EmailCheckView(APIView):

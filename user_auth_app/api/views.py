@@ -29,28 +29,54 @@ API view to register a new user.
 If registration is successful, a token is created and returned with user data.
 If the user already exists or the data is invalid, the errors are returned.
 """
+# class RegistrationView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def post(self, request):
+#         serializer = RegistrationSerializer(data=request.data)
+
+#         data = {}
+
+#         if serializer.is_valid():
+#             saved_account = serializer.save()
+#             token, create = Token.objects.get_or_create(user=saved_account)
+#             data = {
+#                 'token': token.key,
+#                 'fullname': saved_account.username,
+#                 'email': saved_account.email,
+#                 'user_id': saved_account.id
+
+#             }
+#         else:
+#             data=serializer.errors
+        
+#         return Response(data)
+
+
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-
         data = {}
 
         if serializer.is_valid():
             saved_account = serializer.save()
-            token, create = Token.objects.get_or_create(user=saved_account)
+            token, _ = Token.objects.get_or_create(user=saved_account)
             data = {
                 'token': token.key,
-                'fullname': saved_account.username,
+                'fullname': request.data.get('fullname'),  # <-- hier!
                 'email': saved_account.email,
                 'user_id': saved_account.id
-
             }
         else:
-            data=serializer.errors
-        
+            data = serializer.errors
+
         return Response(data)
+
+
+
+
 
 
 """
