@@ -39,31 +39,64 @@ class BoardsSerializer(serializers.ModelSerializer):
         get_tasks_high_prio_count(obj): Returns the number of tasks with priority 'high'.
         perform_create(serializer): Sets the owner of the board to the current request user.
     """
+    # member_count = serializers.SerializerMethodField()
+    # ticket_count = serializers.SerializerMethodField()
+    # tasks_high_prio_count = serializers.SerializerMethodField()
+    # members = UserMinimalSerializer(many=True, read_only=True)
+    # member_ids = serializers.PrimaryKeyRelatedField(
+    #     queryset=User.objects.all(),
+    #     many=True,
+    #     write_only=True,
+    #     source='members'
+    # )
+    # tasks = serializers.SerializerMethodField()
+
+    # class Meta:
+    #     model = Boards
+    #     fields = [
+    #     'id',
+    #     'title',
+    #     'owner_id',
+    #     'members',
+    #     'member_ids',
+    #     'tasks',
+    #     'member_count',
+    #     'ticket_count',
+    #     'tasks_high_prio_count'
+    # ]
+
+
     member_count = serializers.SerializerMethodField()
     ticket_count = serializers.SerializerMethodField()
     tasks_high_prio_count = serializers.SerializerMethodField()
-    members = UserMinimalSerializer(many=True, read_only=True)
-    member_ids = serializers.PrimaryKeyRelatedField(
+    tasks = serializers.SerializerMethodField()
+
+    # 🔁 WRITE: akzeptiert IDs über "members"
+    members = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         many=True,
-        write_only=True,
-        source='members'
+        write_only=True
     )
-    tasks = serializers.SerializerMethodField()
+
+    # ✅ READ: zeigt Nutzerinfos unter member_details
+    member_details = UserMinimalSerializer(source='members', many=True, read_only=True)
 
     class Meta:
         model = Boards
         fields = [
-        'id',
-        'title',
-        'owner_id',
-        'members',
-        'member_ids',
-        'tasks',
-        'member_count',
-        'ticket_count',
-        'tasks_high_prio_count'
-    ]
+            'id',
+            'title',
+            'owner_id',
+            'members',         # ← WRITE (IDs)
+            'member_details',  # ← READ (Infos)
+            'tasks',
+            'member_count',
+            'ticket_count',
+            'tasks_high_prio_count'
+        ]
+
+
+
     def get_member_count(self, obj):
         """
         Return the number of members associated with the board.
