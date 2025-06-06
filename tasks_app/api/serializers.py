@@ -26,38 +26,70 @@ class TasksSerializer(serializers.ModelSerializer):
         assignee_id (int): ID of the assigned user (write-only).
         reviewer_id (int): ID of the reviewer (write-only).
     """
-    assignee = UserMinimalSerializer()
-    reviewer = UserMinimalSerializer()
-    assignee_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        write_only=True,
-        source='assignee',
-        required=True
-    )
-    reviewer_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        write_only=True,
-        source='reviewer',
-        required=True
-    )
+
+    # assignee_id = serializers.PrimaryKeyRelatedField(
+    #     queryset=User.objects.all(),
+    #     write_only=True,
+    #     source='assignee',
+    #     required=True
+    # )
+    # reviewer_id = serializers.PrimaryKeyRelatedField(
+    #     queryset=User.objects.all(),
+    #     write_only=True,
+    #     source='reviewer',
+    #     required=True
+    # )
     comments_count = serializers.SerializerMethodField()
     priority = serializers.CharField()
     status = serializers.CharField()
     due_date = serializers.DateField()
+    assignee_data = UserMinimalSerializer(source='assignee', read_only=True)
+    reviewer_data = UserMinimalSerializer(source='reviewer', read_only=True)
+
+    assignee_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='assignee',
+        write_only=True,
+        required=True,
+    )
+
+    reviewer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='reviewer',
+        write_only=True,
+        required=True,
+    )
 
     class Meta:
         model = Tasks
         fields = [
-            'id', 'board', 'title', 'description', 'status', 'priority',
-            'assignee', 'reviewer', 'due_date', 'comments_count',
-            'assignee_id', 'reviewer_id',
+            'id',
+            'board',
+            'title',
+            'description',
+            'status',
+            'priority',
+            'assignee_id',         # input: ID
+            'reviewer_id',         # input: ID
+            'assignee_data',    # output: detailliert
+            'reviewer_data',    # output: detailliert
+            'due_date',
+            'comments_count'
         ]
-        extra_kwargs = {
-            'description': {'required': True},
-            'status': {'required': True},
-            'priority': {'required': True},
-            'due_date': {'required': True},
-        }
+
+    # class Meta:
+    #     model = Tasks
+    #     fields = [
+    #         'id', 'board', 'title', 'description', 'status', 'priority',
+    #         'assignee', 'reviewer', 'due_date', 'comments_count',
+    #         'assignee_id', 'reviewer_id',
+    #     ]
+    #     extra_kwargs = {
+    #         'description': {'required': True},
+    #         'status': {'required': True},
+    #         'priority': {'required': True},
+    #         'due_date': {'required': True},
+    #     }
 
     def get_comments_count(self, obj):
         return obj.comments.count()
@@ -78,4 +110,12 @@ class CommentSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Comment
-        fields = ['id','task', 'text', 'author', 'created_at']
+        fields = ['id', 'task', 'cotend', 'author', 'created_at']
+        read_only_fields = ['id', 'created_at', 'task', 'author']
+
+class ReviewerSerializer(serializers.Serializer):
+    reviewer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=True,
+        source='reviewer'
+    )

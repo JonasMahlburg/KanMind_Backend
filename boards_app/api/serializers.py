@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from tasks_app.models import Tasks
 
 
+
 class UserMinimalSerializer(serializers.ModelSerializer):
     """
     Minimal serializer for User model.
@@ -62,8 +63,9 @@ class BoardsSerializer(serializers.ModelSerializer):
     """
     member_count = serializers.SerializerMethodField()
     ticket_count = serializers.SerializerMethodField()
+    tasks_to_do_count = serializers.SerializerMethodField()
     tasks_high_prio_count = serializers.SerializerMethodField()
-    tasks = serializers.SerializerMethodField()
+
 
     # WRITE: Accepts member IDs
     members = serializers.PrimaryKeyRelatedField(
@@ -72,21 +74,17 @@ class BoardsSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
-    # READ: Displays user info under 'member_details'
-    member_details = UserMinimalSerializer(source='members', many=True, read_only=True)
-
     class Meta:
         model = Boards
         fields = [
             'id',
             'title',
-            'owner_id',
-            'members',     
-            'member_details',
-            'tasks',
             'member_count',
             'ticket_count',
-            'tasks_high_prio_count'
+            'tasks_to_do_count',
+            'tasks_high_prio_count',
+            'owner_id',
+            'members',     
         ]
 
 
@@ -140,3 +138,39 @@ class BoardsSerializer(serializers.ModelSerializer):
             int: Count of tasks with priority set to 'high'.
         """
         return obj.tasks.filter(priority='high').count()
+    
+    def get_tasks_to_do_count(self, obj):
+        """
+        Return the number of tasks with status to-do.
+
+        Args:
+            obj (Boards): The board instance.
+
+        Returns:
+            int: Count of tasks with priority set to 'high'.
+        """
+        return obj.tasks.filter(status='to-do').count()
+
+
+class BoardsDetailSerializer(serializers.ModelSerializer):
+    """
+    Detailed serializer for the Boards model.
+
+    Includes basic board information, a list of member users,
+    and a list of all associated tasks with full task detail.
+    """
+    owner_id = serializers.IntegerField(source='owner.id')
+    members = UserMinimalSerializer(many=True)
+    tasks = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Boards
+        fields = ['id', 'title', 'owner_id', 'members', 'tasks']
+
+    def get_tasks(self, obj):
+        from tasks_app.api.serializers import TasksSerializer
+        return TasksSerializer(obj.tasks.all(), many=True).data
+
+
+
+
