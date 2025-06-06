@@ -84,7 +84,7 @@ class BoardsSerializer(serializers.ModelSerializer):
             'tasks_to_do_count',
             'tasks_high_prio_count',
             'owner_id',
-            'members',     
+            'members',    
         ]
 
 
@@ -159,18 +159,37 @@ class BoardsDetailSerializer(serializers.ModelSerializer):
     Includes basic board information, a list of member users,
     and a list of all associated tasks with full task detail.
     """
-    owner_id = serializers.IntegerField(source='owner.id')
-    members = UserMinimalSerializer(many=True)
+    owner_data = UserMinimalSerializer(source='owner', read_only=True)
+    members = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        many=True,
+        write_only=True,
+        required=False
+    )
+    members_data = UserMinimalSerializer(source='members', many=True, read_only=True)
     tasks = serializers.SerializerMethodField()
 
     class Meta:
         model = Boards
-        fields = ['id', 'title', 'owner_id', 'members', 'tasks']
+        fields = ['id', 'title', 'owner_data', 'members', 'members_data', 'tasks']
 
     def get_tasks(self, obj):
+        view = self.context.get('view')
+        if view and view.action in ['update', 'partial_update']:
+            return None
         from tasks_app.api.serializers import TasksSerializer
         return TasksSerializer(obj.tasks.all(), many=True).data
 
+    def update(self, instance, validated_data):
+        members_data = validated_data.pop('members', None)
+        instance = super().update(instance, validated_data)
+        if members_data is not None:
+            instance.members.set(members_data)
+        return instance
 
-
-
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        view = self.context.get('view')
+        if view and view.action in ['update', 'partial_update']:
+            data.pop('tasks', None)
+        return data

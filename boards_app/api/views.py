@@ -26,21 +26,6 @@ class BoardsViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return BoardsDetailSerializer
-        return BoardsSerializer
-
-
-class BoardsDetailView(RetrieveAPIView):
-    """
-    API view to retrieve detailed information of a single board,
-    including members and tasks with nested related data.
-    """
-    queryset = Boards.objects.all()
-    serializer_class = BoardsDetailSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_serializer_class(self):
         if self.action in ['retrieve', 'update', 'partial_update']:
             return BoardsDetailSerializer
         return BoardsSerializer
