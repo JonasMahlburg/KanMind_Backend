@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+
 
 
 
@@ -95,28 +95,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 
-class EmailCheckView(APIView):
-    """
-    API view to check if a user exists with the provided email.
-
-    Methods:
-        post(request): Returns user details if the email exists, otherwise an error.
-    """
-    def post(self, request):
-        email = request.data.get('email')
-        if not email:
-            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response({'error': 'No user with this email found'}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response({
-            'id': user.id,
-            'email': user.email,
-            'fullname': f"{user.first_name} {user.last_name}".strip()
-        })
     
 
 

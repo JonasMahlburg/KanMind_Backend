@@ -43,8 +43,8 @@ class TasksSerializer(serializers.ModelSerializer):
     priority = serializers.CharField()
     status = serializers.CharField()
     due_date = serializers.DateField()
-    assignee_data = UserMinimalSerializer(source='assignee', read_only=True)
-    reviewer_data = UserMinimalSerializer(source='reviewer', read_only=True)
+    assignee = UserMinimalSerializer(read_only=True)
+    reviewer = UserMinimalSerializer(read_only=True)
 
     assignee_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
@@ -58,38 +58,25 @@ class TasksSerializer(serializers.ModelSerializer):
         source='reviewer',
         write_only=True,
         required=True,
-    )
+)
 
     class Meta:
         model = Tasks
         fields = [
-            'id',
-            'board',
-            'title',
-            'description',
-            'status',
-            'priority',
-            'assignee_id',         # input: ID
-            'reviewer_id',         # input: ID
-            'assignee_data',    # output: detailliert
-            'reviewer_data',    # output: detailliert
-            'due_date',
-            'comments_count'
-        ]
+        'id', 'board', 'title', 'description', 'status', 'priority',
+        'assignee', 'reviewer',
+        'assignee_id', 'reviewer_id',
+        'due_date', 'comments_count'
+    ]
+        extra_kwargs = {
+            'title': {'required': True},
+            'description': {'required': True},
+            'status': {'required': True},
+            'priority': {'required': True},
+            'due_date': {'required': True},
+            'board': {'required': True},
+        }
 
-    # class Meta:
-    #     model = Tasks
-    #     fields = [
-    #         'id', 'board', 'title', 'description', 'status', 'priority',
-    #         'assignee', 'reviewer', 'due_date', 'comments_count',
-    #         'assignee_id', 'reviewer_id',
-    #     ]
-    #     extra_kwargs = {
-    #         'description': {'required': True},
-    #         'status': {'required': True},
-    #         'priority': {'required': True},
-    #         'due_date': {'required': True},
-    #     }
 
     def get_comments_count(self, obj):
         return obj.comments.count()

@@ -1,4 +1,5 @@
-from rest_framework import generics
+from rest_framework import generics, status
+from django.contrib.auth.models import User
 from user_auth_app.models import UserProfile
 from .serializers import RegistrationSerializer, EmailAuthTokenSerializer
 from rest_framework.views import APIView
@@ -6,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
-from rest_framework import status
+
 
 
 class UserProfileList(generics.ListCreateAPIView):
@@ -116,3 +117,27 @@ class CustomLogInView(ObtainAuthToken):
 
 
         return Response(data)
+    
+
+class EmailCheckView(APIView):
+    """
+    API view to check if a user exists with the provided email.
+
+    Methods:
+        get(request): Returns user details if the email exists, otherwise an error.
+    """
+    def get(self, request):
+        email = request.query_params.get('email')
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'error': 'No user with this email found'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            'id': user.id,
+            'email': user.email,
+            'fullname': f"{user.first_name} {user.last_name}".strip()
+        })
