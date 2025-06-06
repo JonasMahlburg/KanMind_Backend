@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly, IsAuthenticated
-from .serilaizers import TasksSerializer, CommentSerializer
+from .serializers import TasksSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 
 

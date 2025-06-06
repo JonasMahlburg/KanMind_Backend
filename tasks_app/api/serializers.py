@@ -10,16 +10,21 @@ class TasksSerializer(serializers.ModelSerializer):
     Serializer for the Tasks model.
 
     This serializer handles conversion between Task instances and their JSON representations,
-    including user assignments, deadlines, and ownership.
+    including assignee and reviewer information, task metadata, and deadlines.
 
     Fields:
         id (int): Unique identifier of the task.
-        title (str): Title of the task.
-        content (str): Description or content of the task.
         board (int): ID of the board this task belongs to.
-        owner (int): ID of the user who created the task.
-        worked (list[int]): List of user IDs assigned to the task.
-        deadline (date): Optional deadline for completing the task.
+        title (str): Title of the task.
+        description (str): Detailed description of the task.
+        status (str): Current status of the task.
+        priority (str): Priority level of the task.
+        assignee (dict): Serialized user object assigned to the task.
+        reviewer (dict): Serialized user object responsible for reviewing the task.
+        due_date (date): Deadline for the task.
+        comments_count (int): Computed number of comments related to the task.
+        assignee_id (int): ID of the assigned user (write-only).
+        reviewer_id (int): ID of the reviewer (write-only).
     """
     assignee = UserMinimalSerializer()
     reviewer = UserMinimalSerializer()

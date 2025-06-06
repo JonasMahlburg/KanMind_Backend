@@ -6,54 +6,50 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
+from rest_framework import status
 
 
-"""
-API view to list all user profiles or create a new user profile.
-Uses the RegistrationSerializer to handle user profile data.
-"""
 class UserProfileList(generics.ListCreateAPIView):
+    """
+    API view to list all user profiles or create a new user profile.
+
+    Inherits from Django REST Framework's ListCreateAPIView.
+    Uses the RegistrationSerializer to serialize profile data.
+
+    Methods:
+        get(): Returns a list of all user profiles.
+        post(): Creates a new user profile from request data.
+    """
     queryset = UserProfile.objects.all()
     serializer_class = RegistrationSerializer
 
-"""
-API view to retrieve, update, or delete a specific user profile by ID.
-Uses the RegistrationSerializer to manage user profile operations.
-"""
+
 class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API view to retrieve, update, or delete a specific user profile by ID.
+
+    Inherits from RetrieveUpdateDestroyAPIView to provide full CRUD support
+    for individual user profiles. Uses the RegistrationSerializer.
+
+    Methods:
+        get(): Retrieves a user profile by ID.
+        put(): Updates a user profile by ID.
+        delete(): Deletes a user profile by ID.
+    """
     queryset = UserProfile.objects.all()
     serializer_class = RegistrationSerializer
-
-"""
-API view to register a new user.
-If registration is successful, a token is created and returned with user data.
-If the user already exists or the data is invalid, the errors are returned.
-"""
-# class RegistrationView(APIView):
-#     permission_classes = [AllowAny]
-
-#     def post(self, request):
-#         serializer = RegistrationSerializer(data=request.data)
-
-#         data = {}
-
-#         if serializer.is_valid():
-#             saved_account = serializer.save()
-#             token, create = Token.objects.get_or_create(user=saved_account)
-#             data = {
-#                 'token': token.key,
-#                 'fullname': saved_account.username,
-#                 'email': saved_account.email,
-#                 'user_id': saved_account.id
-
-#             }
-#         else:
-#             data=serializer.errors
-        
-#         return Response(data)
 
 
 class RegistrationView(APIView):
+    """
+    API view to register a new user and return authentication token.
+
+    Accepts user data, creates a new user upon validation,
+    and returns token and user details. Uses the RegistrationSerializer.
+
+    Methods:
+        post(): Handles user registration and token creation.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -65,29 +61,32 @@ class RegistrationView(APIView):
             token, _ = Token.objects.get_or_create(user=saved_account)
             data = {
                 'token': token.key,
-                'fullname': request.data.get('fullname'),  # <-- hier!
+                'fullname': f"{saved_account.first_name} {saved_account.last_name}".strip(),
                 'email': saved_account.email,
                 'user_id': saved_account.id
             }
+            return Response(data, status=status.HTTP_201_CREATED)
         else:
             data = serializer.errors
-
-        return Response(data)
-
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 
 
-"""
-API view for user login using token authentication.
-If credentials are valid, returns an authentication token and user information.
-Otherwise, returns validation errors.
-"""
 
 
 
 class CustomLogInView(ObtainAuthToken):
+    """
+    API view for user login using token authentication.
+
+    Authenticates user based on provided email and password.
+    Returns token and user information on success.
+
+    Methods:
+        post(): Authenticates and logs in the user.
+    """
     permission_classes = [AllowAny]
     serializer_class = EmailAuthTokenSerializer  
 
@@ -98,20 +97,22 @@ class CustomLogInView(ObtainAuthToken):
                 'password': request.data.get('password')
             },
             context={'request': request}
-)
+        )
 
         data = {}
 
         if serializer.is_valid():
             user = serializer.validated_data['user']
-            token, create = Token.objects.get_or_create(user=user)
+            token, _ = Token.objects.get_or_create(user=user)
+            fullname = f"{user.first_name} {user.last_name}".strip()
             data = {
                 'token': token.key,
-                'fullname': user.username,
+                'fullname': fullname,
                 'email': user.email,
                 'user_id': user.id
             }
         else:
-            data=serializer.errors
-        
+            data = serializer.errors
+
+
         return Response(data)

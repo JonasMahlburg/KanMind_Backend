@@ -10,7 +10,14 @@ from rest_framework import status
 
 """
 Serializer for the UserProfile model.
-Handles serialization and deserialization of user profile data, including user, bio, and location.
+
+Handles serialization and deserialization of user profile data,
+including related user object, biography, and location information.
+
+Fields:
+    user (User): Reference to the related user account.
+    bio (str): Short biography of the user.
+    location (str): Location of the user.
 """
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,7 +27,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 """
 Serializer for user registration.
-Validates that passwords match and that the email is unique before creating a new User instance.
+
+Validates that passwords match and that the email is unique before
+creating a new User instance.
+
+Fields:
+    id (int): User ID (read-only).
+    fullname (str): Full name of the user (used to construct first and last name).
+    email (str): Email address of the user.
+    password (str): Password (write-only).
+    repeated_password (str): Password confirmation (write-only).
 """
 class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
@@ -36,13 +52,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
             }
         }
 
-    """
-    Custom save method to create a new User instance after validating passwords and email uniqueness.
-    """
     def save(self):
+        """
+        Create a new User instance after validating passwords and checking for unique email.
+
+        Returns:
+            User: The created user instance.
+
+        Raises:
+            serializers.ValidationError: If passwords don't match or email is already used.
+        """
         pw = self.validated_data.pop('password')
         repeated_pw = self.validated_data.pop('repeated_password')
-        fullname = self.validated_data.pop('fullname')
+        fullname = self.validated_data.pop('fullname').title()
 
         if pw != repeated_pw:
             raise serializers.ValidationError({'error': 'Passwords do not match'})
@@ -57,10 +79,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
             username = f"{base_username}{counter}"
             counter += 1
 
+        names = fullname.split()
+        first_name = names[0] if len(names) > 0 else ""
+        last_name = " ".join(names[1:]) if len(names) > 1 else ""
+
         account = User(
             email=self.validated_data['email'],
             username=username,
-            first_name=fullname  # oder splitten, falls du Vor-/Nachname willst
+            first_name=first_name,
+            last_name=last_name
         )
         account.set_password(pw)
         account.save()
@@ -68,10 +95,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
 class EmailCheckView(APIView):
+    """
+    API view to check if a user exists with the provided email.
+
+    Methods:
+        post(request): Returns user details if the email exists, otherwise an error.
+    """
     def post(self, request):
         email = request.data.get('email')
         if not email:
@@ -85,16 +115,38 @@ class EmailCheckView(APIView):
         return Response({
             'id': user.id,
             'email': user.email,
-            'fullname': user.username
-        }, status=status.HTTP_200_OK)
+            'fullname': f"{user.first_name} {user.last_name}".strip()
+        })
     
 
 
 class EmailAuthTokenSerializer(serializers.Serializer):
+    """
+    Serializer for authenticating a user using email and password.
+
+    Fields:
+        email (str): The user's email address.
+        password (str): The user's password.
+
+    Methods:
+        validate(attrs): Authenticates the user and returns user object if valid.
+    """
     email = serializers.EmailField(label="Email", write_only=True)
     password = serializers.CharField(label="Password", style={'input_type': 'password'}, trim_whitespace=False)
 
     def validate(self, attrs):
+        """
+        Validate and authenticate the user using provided email and password.
+
+        Args:
+            attrs (dict): Dictionary containing 'email' and 'password'.
+
+        Returns:
+            dict: Dictionary including the authenticated user.
+
+        Raises:
+            serializers.ValidationError: If authentication fails or required fields are missing.
+        """
         email = attrs.get('email')
         password = attrs.get('password')
 
