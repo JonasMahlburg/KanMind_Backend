@@ -81,6 +81,14 @@ class TasksSerializer(serializers.ModelSerializer):
     def get_comments_count(self, obj):
         return obj.comments.count()
     
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request and request.method == 'PATCH':
+            data.pop('board', None)  # Board entfernen
+            data.pop('comments_count', None)  # comments_count entfernen
+        return data
+    
     
 class CommentSerializer(serializers.ModelSerializer):
     content = serializers.CharField(source='text')
