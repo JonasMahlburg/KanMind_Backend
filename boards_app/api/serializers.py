@@ -118,6 +118,24 @@ class BoardsSerializer(serializers.ModelSerializer):
 
 
 class BoardsDetailSerializer(serializers.ModelSerializer):
+    """
+    Detailed serializer for the Boards model.
+
+    Provides detailed information about a board including its members
+    and related tasks. Supports both read and write operations for members.
+
+    Fields:
+        id (int): Unique identifier of the board.
+        title (str): Title of the board.
+        owner_id (int): ID of the board owner (read-only).
+        members (list): List of members with full user details (read-only).
+        tasks (list): List of tasks related to the board.
+
+    Special behavior:
+        - On PATCH requests, the representation includes `owner_data`
+          and `members_data` with detailed user info instead of standard fields.
+    """
+
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     members = UserMinimalSerializer(many=True, read_only=True)
     members = serializers.PrimaryKeyRelatedField(
@@ -133,11 +151,32 @@ class BoardsDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'owner_id', 'members', 'tasks']
 
     def get_tasks(self, obj):
+        """
+        Retrieve all tasks related to this board.
+
+        Args:
+            obj (Boards): The board instance.
+
+        Returns:
+            list: Serialized list of related tasks without board details.
+        """
         from tasks_app.api.serializers import TasksSerializerNoBoard
         tasks = obj.tasks.all()
         return TasksSerializerNoBoard(tasks, many=True).data
 
     def to_representation(self, instance):
+        """
+        Customize output representation based on HTTP method.
+
+        On PATCH requests, return a simplified representation containing
+        `owner_data` and detailed `members_data`.
+
+        Args:
+            instance (Boards): The board instance.
+
+        Returns:
+            dict: Serialized representation of the board.
+        """
         request = self.context.get('request')
         if request and request.method == 'PATCH':
             return {
@@ -153,8 +192,18 @@ class BoardsDetailSerializer(serializers.ModelSerializer):
             'members': UserMinimalSerializer(instance.members.all(), many=True).data,
             'tasks': self.get_tasks(instance)
         }
-        
+
     def update(self, instance, validated_data):
+        """
+        Update the board instance, handling member assignment explicitly.
+
+        Args:
+            instance (Boards): The board instance to update.
+            validated_data (dict): Validated data from the serializer.
+
+        Returns:
+            Boards: The updated board instance.
+        """
         members_data = validated_data.pop('members', None)
         instance = super().update(instance, validated_data)
         if members_data is not None:
