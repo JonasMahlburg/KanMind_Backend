@@ -57,17 +57,42 @@ Login is required for POST, PUT, or DELETE requests. Authentication is handled v
 
 ---
 
-## 🧪 API Endpoints (Overview)
+## 🧪 API Endpoints Overview
 
-| Method | Endpoint                                | Description                                   |
-|--------|-----------------------------------------|-----------------------------------------------|
-| GET    | `/api/tasks/`                           | List all tasks                                |
-| POST   | `/api/tasks/`                           | Create a new task                             |
-| GET    | `/api/tasks/review/`                    | List tasks with status "review"               |
-| GET    | `/api/tasks/high-prio/`                 | List high priority tasks                      |
-| GET    | `/api/tasks/assigned/`                  | Tasks assigned to the logged-in user          |
-| GET    | `/api/tasks/<task_id>/comments/`        | List comments for a specific task             |
-| POST   | `/api/tasks/<task_id>/comments/`        | Create a comment on a specific task           |
+### General
+
+| Method | Endpoint           | Description                       |
+|--------|--------------------|---------------------------------|
+| POST   | /api/registration/ | User registration               |
+| POST   | /api/login/        | User login                      |
+
+### Boards
+
+Everything related to creating, editing, and retrieving boards.
+
+| Method | Endpoint                 | Description                      |
+|--------|--------------------------|---------------------------------|
+| GET    | /api/boards/             | List all boards                 |
+| POST   | /api/boards/             | Create a new board              |
+| GET    | /api/boards/{board_id}/  | Retrieve details of a board    |
+| PATCH  | /api/boards/{board_id}/  | Update a board                 |
+| DELETE | /api/boards/{board_id}/  | Delete a board                 |
+| GET    | /api/email-check/        | Check email availability       |
+
+### Tasks
+
+Everything related to creating, editing, and retrieving tasks.
+
+| Method | Endpoint                         | Description                            |
+|--------|----------------------------------|--------------------------------------|
+| GET    | /api/tasks/assigned-to-me/       | List tasks assigned to the logged-in user |
+| GET    | /api/tasks/reviewing/            | List tasks currently under review    |
+| POST   | /api/tasks/                     | Create a new task                    |
+| PATCH  | /api/tasks/{task_id}/           | Update a task                       |
+| DELETE | /api/tasks/{task_id}/           | Delete a task                       |
+| GET    | /api/tasks/{task_id}/comments/ | List comments for a task             |
+| POST   | /api/tasks/{task_id}/comments/ | Add a comment to a task              |
+| DELETE | /api/tasks/{task_id}/comments/{comment_id}/ | Delete a specific comment         |
 
 ---
 
