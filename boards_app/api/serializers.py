@@ -120,7 +120,7 @@ class BoardsSerializer(serializers.ModelSerializer):
 class BoardsDetailSerializer(serializers.ModelSerializer):
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     members = UserMinimalSerializer(many=True, read_only=True)
-    members_write = serializers.PrimaryKeyRelatedField(
+    members = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         many=True,
         write_only=True,
@@ -130,7 +130,7 @@ class BoardsDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Boards
-        fields = ['id', 'title', 'owner_id', 'members_write', 'members', 'tasks']
+        fields = ['id', 'title', 'owner_id', 'members', 'tasks']
 
     def get_tasks(self, obj):
         from tasks_app.api.serializers import TasksSerializerNoBoard
@@ -153,9 +153,9 @@ class BoardsDetailSerializer(serializers.ModelSerializer):
             'members': UserMinimalSerializer(instance.members.all(), many=True).data,
             'tasks': self.get_tasks(instance)
         }
-
+        
     def update(self, instance, validated_data):
-        members_data = validated_data.pop('members_write', None)
+        members_data = validated_data.pop('members', None)
         instance = super().update(instance, validated_data)
         if members_data is not None:
             instance.members.set(members_data)

@@ -13,3 +13,6 @@ class BoardsViewSet(viewsets.ModelViewSet):
         if self.action in ['retrieve', 'partial_update']:
             return BoardsDetailSerializer
         return BoardsSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
