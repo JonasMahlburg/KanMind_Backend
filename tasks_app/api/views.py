@@ -7,9 +7,11 @@ from tasks_app.models import Tasks, Comment
 from rest_framework import viewsets
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
-from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from .permissions import IsBoardMemberOrReadOnly
 from .serializers import TasksSerializer, CommentSerializer
-from .permissions import IsOwnerOrReadOnly
+
 
 
 
@@ -26,7 +28,7 @@ class TasksViewSet(viewsets.ModelViewSet):
     """
     queryset = Tasks.objects.all()
     serializer_class = TasksSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsBoardMemberOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -44,13 +46,15 @@ class CommentViewSet(viewsets.ModelViewSet):
             and links the comment to the task.
     """
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsBoardMemberOrReadOnly]
 
     def get_queryset(self):
         task_id = self.kwargs.get('task_pk')
         return Comment.objects.filter(task__id=task_id)
 
     def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to create a comment.")
         task_id = self.kwargs.get('task_pk')
         task = Tasks.objects.get(id=task_id)
         serializer.save(author=self.request.user, task=task)
