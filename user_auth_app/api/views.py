@@ -100,8 +100,6 @@ class CustomLogInView(ObtainAuthToken):
             context={'request': request}
         )
 
-        data = {}
-
         if serializer.is_valid():
             user = serializer.validated_data['user']
             token, _ = Token.objects.get_or_create(user=user)
@@ -112,11 +110,12 @@ class CustomLogInView(ObtainAuthToken):
                 'email': user.email,
                 'user_id': user.id
             }
+            return Response(data)
         else:
-            data = serializer.errors
-
-
-        return Response(data)
+            return Response(
+                {'error': 'Invalid email or password'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
     
 
 class EmailCheckView(APIView):

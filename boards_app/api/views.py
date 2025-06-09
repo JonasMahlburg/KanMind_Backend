@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .serializers import BoardsSerializer, BoardsDetailSerializer
 from rest_framework.generics import RetrieveAPIView
+from boards_app.api.permissions import BoardAccessPermission
 
 
 
@@ -26,6 +27,7 @@ class BoardsViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Boards.objects.all()
+    permission_classes = [BoardAccessPermission]
 
     def get_serializer_class(self):
         """
