@@ -114,8 +114,7 @@ class CustomLogInView(ObtainAuthToken):
         else:
             return Response(
                 {'error': 'Invalid email or password'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+                status=status.HTTP_400_BAD_REQUEST)
     
 
 class EmailCheckView(APIView):

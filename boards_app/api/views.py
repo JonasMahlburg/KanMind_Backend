@@ -3,8 +3,40 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .serializers import BoardsSerializer, BoardsDetailSerializer
 from rest_framework.generics import RetrieveAPIView
-from boards_app.api.permissions import BoardAccessPermission
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
+
+
+from rest_framework.permissions import BasePermission
+
+
+# Permission class to control access to Board instances.
+class BoardAccessPermission(BasePermission):
+    """
+    Permission class to control access to Board instances.
+
+    - Only authenticated users can access any board-related endpoint.
+    - Users can retrieve/update if they are the owner or a member.
+    - Only owners can delete.
+    """
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            raise NotAuthenticated(detail="Authentication required to access boards.")
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+
+        if request.method in ['GET', 'PUT', 'PATCH']:
+            if obj.owner == user or user in obj.members.all():
+                return True
+
+        if request.method == 'DELETE':
+            if obj.owner == user:
+                return True
+
+        raise PermissionDenied("Forbidden. You do not have permission to perform this action.")
 
 
 class BoardsViewSet(viewsets.ModelViewSet):

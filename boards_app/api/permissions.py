@@ -37,4 +37,4 @@ class BoardAccessPermission(BasePermission):
                 return True
             raise PermissionDenied(detail="Forbidden. Only the board owner can delete this board.")
 
-        return True
+        raise PermissionDenied(detail="Forbidden. You do not have permission to perform this action.")

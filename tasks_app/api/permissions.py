@@ -11,6 +11,15 @@ class IsBoardMemberOrReadOnly(BasePermission):
     - Only board members can update a task.
     """
 
+    def has_permission(self, request, view):
+        """
+        Ensure that only authenticated users can access the Task endpoints.
+        Provides general access control for list and create actions.
+        """
+        if not request.user or not request.user.is_authenticated:
+            raise NotAuthenticated(detail="Authentication required to access tasks.")
+        return True
+
     def has_object_permission(self, request, view, obj):
         """
         Determine if the user has permission to perform the action on the task object.
