@@ -1,13 +1,28 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
+
 class IsBoardMemberOrReadOnly(BasePermission):
     """
-    Custom permission to allow only members of a task's board to edit or delete the task.
-    Safe methods (like GET, HEAD, OPTIONS) are allowed for everyone.
+    Permission class to control task access based on board membership.
+
+    - Safe methods (GET, HEAD, OPTIONS) are always allowed.
+    - Only the task author or board owner can delete a task.
+    - Only board members can update a task.
     """
 
     def has_object_permission(self, request, view, obj):
+        """
+        Determine if the user has permission to perform the action on the task object.
+
+        Args:
+            request: The HTTP request object.
+            view: The view object.
+            obj: The task instance being accessed.
+
+        Returns:
+            bool: True if access is permitted, otherwise raises an exception.
+        """
         if request.method in SAFE_METHODS:
             return True
 

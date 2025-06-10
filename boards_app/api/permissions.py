@@ -3,12 +3,25 @@ from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
 class BoardAccessPermission(BasePermission):
     """
-    Custom permission for Board access control:
-    - Authenticated users can retrieve/update/modify boards if they are the owner or a member.
+    Permission class to control access to Board instances.
+
+    - Authenticated users can retrieve, update, or partially update a board
+      if they are the owner or a member.
     - Only the owner can delete the board.
     """
 
     def has_object_permission(self, request, view, obj):
+        """
+        Determine if the user has permission to perform the action on the board object.
+
+        Args:
+            request: The HTTP request object.
+            view: The view object.
+            obj: The board instance being accessed.
+
+        Returns:
+            bool: True if access is permitted, otherwise raises an exception.
+        """
         user = request.user
 
         if not user.is_authenticated:
