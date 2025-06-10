@@ -3,10 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 
 
-
 # Create your models here.
 class Tasks(models.Model):
-    
     """
     Represents a task in the Kanmind application.
 
@@ -86,6 +84,7 @@ class Tasks(models.Model):
     def __str__(self):
         return f"{self.title}, {self.description}, ({self.due_date})"
     
+
 class Comment(models.Model):
     """
     Represents a comment made by a user on a task.

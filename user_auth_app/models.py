@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 
+
 class UserProfile(models.Model):
     """
     Extends the built-in User model with additional profile information.
@@ -13,3 +14,4 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    

@@ -49,3 +49,4 @@ class IsBoardMemberOrReadOnly(BasePermission):
 
         # If all checks pass, permission is granted
         return True
+    

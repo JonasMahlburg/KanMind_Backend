@@ -7,7 +7,6 @@ router = DefaultRouter()
 router.register(r'boards', BoardsViewSet)
 
 
-
 urlpatterns = [
    path('', include( router.urls)),
    path('email-check/', EmailCheckView.as_view(), name='email-check'),

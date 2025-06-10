@@ -5,13 +5,6 @@ from tasks_app.models import Tasks, Comment
 from boards_app.api.serializers import UserMinimalSerializer
 
 
-from django.contrib.auth import get_user_model
-User = get_user_model()
-from rest_framework import serializers
-from tasks_app.models import Tasks, Comment
-from boards_app.api.serializers import UserMinimalSerializer
-
-
 class TasksSerializer(serializers.ModelSerializer):
     """
     Serializer for the Tasks model.

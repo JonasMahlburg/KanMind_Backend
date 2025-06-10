@@ -14,8 +14,6 @@ tasks_router.register(r'comments', CommentViewSet, basename='task-comments')
 review_router = NestedDefaultRouter(router, r'tasks', lookup='task')
 
 
-
-
 urlpatterns = [
    path('tasks/reviewing/', TasksInReviewViewset.as_view({'get': 'list'})),
    path('tasks/assigned-to-me/', TasksAssignedToMeAsReviewerViewSet.as_view({'get': 'list'})),

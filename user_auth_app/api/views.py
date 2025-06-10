@@ -9,7 +9,6 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 
 
-
 class UserProfileList(generics.ListCreateAPIView):
     """
     API view to list all user profiles or create a new user profile.
@@ -72,12 +71,6 @@ class RegistrationView(APIView):
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-
-
-
 class CustomLogInView(ObtainAuthToken):
     """
     API view for user login using token authentication.
@@ -88,8 +81,8 @@ class CustomLogInView(ObtainAuthToken):
     Methods:
         post(): Authenticates and logs in the user.
     """
-    permission_classes = [AllowAny]
-    serializer_class = EmailAuthTokenSerializer  
+    permission_classes= [AllowAny]
+    serializer_class= EmailAuthTokenSerializer  
 
     def post(self, request):
         serializer = self.serializer_class(
@@ -115,7 +108,7 @@ class CustomLogInView(ObtainAuthToken):
             return Response(
                 {'error': 'Invalid email or password'},
                 status=status.HTTP_400_BAD_REQUEST)
-    
+            
 
 class EmailCheckView(APIView):
     """
@@ -139,3 +132,4 @@ class EmailCheckView(APIView):
             'email': user.email,
             'fullname': f"{user.first_name} {user.last_name}".strip()
         })
+    

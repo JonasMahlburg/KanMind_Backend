@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
+
 class BoardAccessPermission(BasePermission):
     """
     Permission class to control access to Board instances.

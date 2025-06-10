@@ -7,9 +7,8 @@ from rest_framework.response import Response
 from boards_app.api.serializers import UserMinimalSerializer
 
 
-
-
-"""
+class UserProfileSerializer(serializers.ModelSerializer):
+    """
 Serializer for the UserProfile model.
 
 Handles serialization and deserialization of user profile data,
@@ -20,13 +19,13 @@ Fields:
     bio (str): Short biography of the user.
     location (str): Location of the user.
 """
-class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['user', 'bio', 'location']
 
 
-"""
+class RegistrationSerializer(serializers.ModelSerializer):
+    """
 Serializer for user registration.
 
 Validates that passwords match and that the email is unique before
@@ -39,7 +38,6 @@ Fields:
     password (str): Password (write-only).
     repeated_password (str): Password confirmation (write-only).
 """
-class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     repeated_password = serializers.CharField(write_only=True)
     fullname = serializers.CharField(write_only=True, allow_blank=False)
@@ -93,10 +91,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.set_password(pw)
         account.save()
         return account
-
-
-
-    
 
 
 class EmailAuthTokenSerializer(serializers.Serializer):

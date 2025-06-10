@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from boards_app.models import Boards
 from django.contrib.auth.models import User
-from tasks_app.models import Tasks
-
 
 
 class UserMinimalSerializer(serializers.ModelSerializer):
@@ -65,8 +63,6 @@ class BoardsSerializer(serializers.ModelSerializer):
             'owner_id',
             'members',    
         ]
-
-
 
     def get_member_count(self, obj):
         """

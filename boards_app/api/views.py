@@ -1,13 +1,8 @@
 from boards_app.models import Boards
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .serializers import BoardsSerializer, BoardsDetailSerializer
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.exceptions import NotAuthenticated, PermissionDenied
-
-
-
 from rest_framework.permissions import BasePermission
+from .serializers import BoardsSerializer, BoardsDetailSerializer
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
 
 # Permission class to control access to Board instances.

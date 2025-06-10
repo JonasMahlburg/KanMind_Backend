@@ -3,6 +3,7 @@ from django.conf import settings
 from tasks_app.models import Tasks
 from user_auth_app.models import User
 
+
 class Boards(models.Model):
     """
     Represents a board within the Kanmind application.
