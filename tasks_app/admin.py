@@ -7,7 +7,7 @@ class TasksAdmin(admin.ModelAdmin):
         (
             None,
             {
-                "fields": ['id', "title", "description", "due_date", "priority" "board"],
+                "fields": ['id', "title", "description", "due_date", "priority", "board"],
             },
         ),
         (
