@@ -20,9 +20,13 @@ from django.conf.urls.static import static
 from core import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('user_auth_app.api.urls')),
     path('api/', include('tasks_app.api.urls')),
     path('api/', include('boards_app.api.urls')),
+    path('sentry-debug/', trigger_error),
 ] + staticfiles_urlpatterns()

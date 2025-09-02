@@ -1,8 +1,11 @@
-asgiref==3.8.1
-Django==5.2.1
+asgiref==3.9.1
+certifi==2025.8.3
+Django==5.2.5
 django-cors-headers==4.7.0
 djangorestframework==3.16.0
 drf-nested-routers==0.94.2
 gunicorn==23.0.0
 packaging==25.0
+sentry-sdk==2.35.2
 sqlparse==0.5.3
+urllib3==2.5.0
